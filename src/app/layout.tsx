@@ -7,6 +7,10 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'NimeTrack - Pelacak Anime & Rilis',
   description: 'Track anime pilihanmu, integrasikan link streaming mandiri, dan dapatkan notifikasi rilis instan.',
+  icons: {
+    icon: '/Logo.png',
+    apple: '/Logo.png',
+  },
 };
 
 export default function RootLayout({

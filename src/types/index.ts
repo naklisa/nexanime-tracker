@@ -35,6 +35,7 @@ export interface DbNotification {
 export interface JikanAnime {
   mal_id: number;
   title: string;
+  title_english?: string | null;
   images: {
     jpg: {
       image_url: string;

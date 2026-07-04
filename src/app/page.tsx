@@ -1,14 +1,14 @@
 import Link from 'next/link';
-import { Tv, Flame, Play, Bell, Shield, ArrowRight } from 'lucide-react';
+import { Flame, Play, Bell, Shield, ArrowRight } from 'lucide-react';
 
 export default function LandingPage() {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Header */}
       <header className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 w-full flex items-center justify-between">
-        <div className="flex items-center gap-2 text-xl font-bold tracking-wider text-violet-400">
-          <Tv className="h-6 w-6 text-violet-500 animate-pulse" />
-          <span>NIME<span className="text-emerald-400">TRACK</span></span>
+        <div className="flex items-center gap-2.5">
+          <img src="/Logo.png" alt="NimeTrack Logo" className="h-8 w-auto object-contain" />
+          <span className="text-xl font-bold tracking-wider text-violet-400">NIME<span className="text-emerald-400">TRACK</span></span>
         </div>
         <div className="flex items-center gap-4">
           <Link

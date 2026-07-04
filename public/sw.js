@@ -6,8 +6,8 @@ self.addEventListener('push', function (event) {
     const title = data.title || 'Anime Rilis Baru!';
     const options = {
       body: data.body || 'Ada episode baru tayang hari ini.',
-      icon: data.icon || '/favicon.ico',
-      badge: '/favicon.ico',
+      icon: data.icon || '/Logo.png',
+      badge: '/Logo.png',
       vibrate: [100, 50, 100],
       data: {
         url: data.url || '/dashboard',

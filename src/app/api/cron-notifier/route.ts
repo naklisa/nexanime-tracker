@@ -2,6 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import webpush from 'web-push';
 
+export const dynamic = 'force-dynamic';
+
 // Konfigurasi VAPID untuk Web Push
 if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails(
@@ -105,7 +107,7 @@ export async function GET(request: Request) {
             title: 'Episode Baru Rilis! 📺',
             body: message,
             url: `${process.env.NEXT_PUBLIC_SUPABASE_URL ? new URL(request.url).origin : ''}/anime/${anime.id}`,
-            icon: anime.image_url || '/favicon.ico',
+            icon: anime.image_url || '/Logo.png',
           });
 
           for (const sub of subscriptions) {

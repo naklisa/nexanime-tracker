@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
-import { Tv, Mail, Lock, Loader2, AlertCircle } from 'lucide-react';
+import { Mail, Lock, Loader2, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -26,13 +26,14 @@ export default function LoginPage() {
       });
 
       if (error) {
-        throw error;
+        setErrorMsg(error.message);
+      } else {
+        router.push('/dashboard');
+        router.refresh();
       }
-
-      router.push('/dashboard');
-      router.refresh();
     } catch (err) {
-      setErrorMsg((err as Error).message || 'Gagal masuk. Silakan cek email dan password Anda.');
+      console.error(err);
+      setErrorMsg('Terjadi kesalahan koneksi. Silakan coba lagi.');
     } finally {
       setLoading(false);
     }
@@ -43,8 +44,8 @@ export default function LoginPage() {
       <div className="glass w-full max-w-md rounded-3xl p-6 sm:p-8 shadow-2xl">
         {/* Brand Header */}
         <div className="flex flex-col items-center mb-8">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-600/20 text-violet-400 mb-3 border border-violet-500/20">
-            <Tv className="h-7 w-7 text-violet-500" />
+          <div className="flex mb-3">
+            <img src="/Logo.png" alt="NimeTrack Logo" className="h-12 w-auto object-contain" />
           </div>
           <h2 className="text-2xl font-bold tracking-tight text-white">Selamat Datang Kembali</h2>
           <p className="text-sm text-slate-400 mt-1">Masuk untuk melacak anime favoritmu</p>

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { DbNotification } from '@/types';
-import { Bell, LogOut, Plus, Tv, Trash2, Circle, Smartphone, BellRing, Loader2 } from 'lucide-react';
+import { Bell, LogOut, Plus, Trash2, Circle, Smartphone, BellRing, Loader2 } from 'lucide-react';
 
 interface NavbarProps {
   onOpenAddModal?: () => void;
@@ -192,8 +192,8 @@ export default function Navbar({ onOpenAddModal }: NavbarProps) {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <Link href="/dashboard" className="flex items-center gap-2 text-xl font-bold tracking-wider text-violet-400">
-              <Tv className="h-6 w-6 text-violet-500 animate-pulse" />
+            <Link href="/dashboard" className="flex items-center gap-2.5 text-xl font-bold tracking-wider text-violet-400">
+              <img src="/Logo.png" alt="NimeTrack Logo" className="h-8 w-auto object-contain" />
               <span>NIME<span className="text-emerald-400">TRACK</span></span>
             </Link>
           </div>

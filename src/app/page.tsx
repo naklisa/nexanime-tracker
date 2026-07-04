@@ -1,100 +1,100 @@
-import Image from "next/image";
+import Link from 'next/link';
+import { Tv, Flame, Play, Bell, Shield, ArrowRight } from 'lucide-react';
 
-export default function Home() {
+export default function LandingPage() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="flex min-h-screen flex-col">
+      {/* Header */}
+      <header className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 w-full flex items-center justify-between">
+        <div className="flex items-center gap-2 text-xl font-bold tracking-wider text-violet-400">
+          <Tv className="h-6 w-6 text-violet-500 animate-pulse" />
+          <span>NIME<span className="text-emerald-400">TRACK</span></span>
+        </div>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/login"
+            className="text-sm font-semibold text-slate-300 hover:text-white transition-all"
+          >
+            Masuk
+          </Link>
+          <Link
+            href="/register"
+            className="rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-900/20 transition-all hover:bg-violet-500 hover:shadow-violet-800/40 active:scale-95"
+          >
+            Daftar
+          </Link>
+        </div>
+      </header>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      {/* Hero Section */}
+      <main className="flex-1 flex flex-col justify-center items-center px-4 max-w-5xl mx-auto text-center py-12">
+        <div className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/20 bg-violet-500/5 px-3.5 py-1.5 text-xs font-semibold text-violet-400 mb-6">
+          <Flame className="h-4 w-4 fill-violet-400" />
+          <span>Anime Tracking Platform Modern</span>
+        </div>
+
+        <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl text-white mb-6 leading-tight">
+          Track Anime Pilihanmu & <br className="hidden sm:inline" />
+          Dapatkan <span className="bg-gradient-to-r from-violet-400 to-emerald-400 bg-clip-text text-transparent">Notifikasi Rilis</span> Instan
+        </h1>
+
+        <p className="max-w-2xl text-lg text-slate-400 mb-10">
+          Kelola daftar tontonanmu, hubungkan link streaming favoritmu sendiri secara mandiri, dan terima notifikasi in-app otomatis begitu episode terbaru rilis!
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
+          <Link
+            href="/register"
+            className="flex items-center gap-2 rounded-2xl bg-violet-600 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-violet-900/30 transition-all hover:bg-violet-500 hover:shadow-violet-800/50 active:scale-95 w-full sm:w-auto justify-center group"
           >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <span>Mulai Sekarang</span>
+            <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+          </Link>
+          <Link
+            href="/login"
+            className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-8 py-4 text-base font-semibold text-slate-200 transition-all hover:bg-white/10 hover:text-white w-full sm:w-auto justify-center"
           >
-            Read our docs
-          </a>
+            <span>Masuk ke Akun</span>
+          </Link>
+        </div>
+
+        {/* Feature Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-24 w-full">
+          <div className="glass rounded-3xl p-6 text-left hover:border-violet-500/30 transition-all duration-300">
+            <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-violet-600/10 text-violet-400 mb-4">
+              <Play className="h-5 w-5 fill-violet-400" />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">Track & Progress</h3>
+            <p className="text-sm text-slate-400">
+              Pantau progres tontonanmu untuk tiap anime. Update episode dengan cepat dalam satu klik.
+            </p>
+          </div>
+
+          <div className="glass rounded-3xl p-6 text-left hover:border-violet-500/30 transition-all duration-300">
+            <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-emerald-600/10 text-emerald-400 mb-4">
+              <Bell className="h-5 w-5 fill-emerald-400" />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">Notifikasi In-App</h3>
+            <p className="text-sm text-slate-400">
+              Sistem akan memantau waktu rilis anime kamu dan mengirimkan notifikasi instan langsung di aplikasi.
+            </p>
+          </div>
+
+          <div className="glass rounded-3xl p-6 text-left hover:border-violet-500/30 transition-all duration-300">
+            <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-blue-600/10 text-blue-400 mb-4">
+              <Shield className="h-5 w-5" />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">Multi-Streaming Link</h3>
+            <p className="text-sm text-slate-400">
+              Tambahkan link platform streaming mana saja (Bstation, Crunchyroll, dll) agar bisa ditonton dalam sekali klik.
+            </p>
+          </div>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      {/* Footer */}
+      <footer className="border-t border-white/5 py-8 text-center text-xs text-slate-500 w-full mt-12">
+        <p>&copy; {new Date().getFullYear()} NimeTrack. Made with love for anime lovers.</p>
       </footer>
     </div>
   );

@@ -4,8 +4,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
-import { Notification } from '@/types';
-import { Bell, LogOut, Plus, Tv, Trash2, Circle } from 'lucide-react';
+import { DbNotification } from '@/types';
+import { Bell, LogOut, Plus, Tv, Trash2, Circle, Smartphone, BellRing, Loader2 } from 'lucide-react';
 
 interface NavbarProps {
   onOpenAddModal?: () => void;
@@ -14,10 +14,45 @@ interface NavbarProps {
 export default function Navbar({ onOpenAddModal }: NavbarProps) {
   const router = useRouter();
   const supabase = createClient();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<DbNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [hasPushPermission, setHasPushPermission] = useState(false);
+  const [pushLoading, setPushLoading] = useState(false);
+
+  useEffect(() => {
+    if ('Notification' in window) {
+      setHasPushPermission(Notification.permission === 'granted');
+    }
+  }, []);
+
+  const handleEnablePush = async () => {
+    setPushLoading(true);
+    try {
+      const { subscribeToPushNotifications } = await import('@/lib/push');
+      const sub = await subscribeToPushNotifications();
+      
+      // Save subscription in DB
+      const res = await fetch('/api/push-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sub),
+      });
+
+      if (!res.ok) {
+        throw new Error('Gagal menyimpan subscription ke server.');
+      }
+
+      setHasPushPermission(true);
+      alert('Notifikasi HP berhasil diaktifkan!');
+    } catch (err) {
+      console.error(err);
+      alert((err as Error).message || 'Gagal mengaktifkan notifikasi HP.');
+    } finally {
+      setPushLoading(false);
+    }
+  };
 
   const fetchNotifications = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -53,7 +88,7 @@ export default function Navbar({ onOpenAddModal }: NavbarProps) {
             image_url: item.anime_tracker.image_url
           } : undefined
         };
-      }) as Notification[];
+      }) as DbNotification[];
 
       setNotifications(formatted);
       setUnreadCount(formatted.filter((n) => !n.is_read).length);
@@ -70,7 +105,7 @@ export default function Navbar({ onOpenAddModal }: NavbarProps) {
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'notifications' },
         (payload) => {
-          const newNotif = payload.new as Notification;
+          const newNotif = payload.new as DbNotification;
           setNotifications((prev) => [newNotif, ...prev]);
           setUnreadCount((c) => c + 1);
         }
@@ -174,6 +209,29 @@ export default function Navbar({ onOpenAddModal }: NavbarProps) {
                 <span className="hidden sm:inline">Track Anime</span>
               </button>
             )}
+
+            {/* Enable Push Button */}
+            <button
+              onClick={handleEnablePush}
+              disabled={pushLoading || hasPushPermission}
+              className={`rounded-xl border p-2.5 transition-all active:scale-95 disabled:pointer-events-none flex items-center justify-center gap-1.5 ${
+                hasPushPermission
+                  ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+                  : 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white'
+              }`}
+              title={hasPushPermission ? 'Notifikasi HP Aktif' : 'Aktifkan Notifikasi HP'}
+            >
+              {pushLoading ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : hasPushPermission ? (
+                <BellRing className="h-5 w-5" />
+              ) : (
+                <Smartphone className="h-5 w-5" />
+              )}
+              <span className="hidden md:inline text-xs font-semibold">
+                {hasPushPermission ? 'Notifikasi Aktif' : 'Aktifkan Notifikasi HP'}
+              </span>
+            </button>
 
             {/* Notification Bell */}
             <div className="relative" ref={dropdownRef}>

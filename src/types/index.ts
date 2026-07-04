@@ -19,7 +19,7 @@ export interface StreamingLink {
   created_at: string;
 }
 
-export interface Notification {
+export interface DbNotification {
   id: string;
   user_id: string;
   anime_id: string | null;

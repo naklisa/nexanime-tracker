@@ -1,7 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
+import webpush from 'web-push';
 
-export async function GET() {
+// Konfigurasi VAPID untuk Web Push
+if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    process.env.VAPID_SUBJECT || 'mailto:shavana@example.com',
+    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY
+  );
+}
+
+export async function GET(request: Request) {
   // Inisialisasi Supabase Admin Client menggunakan Service Role Key agar bisa bypass RLS
   const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -21,7 +31,7 @@ export async function GET() {
 
     console.log(`Menjalankan cron-notifier untuk hari JST: ${currentDayJST}`);
 
-    // 2. Query ke Supabase untuk mendapatkan semua anime yang tayang hari ini (ILike pencocokan jamak/tunggal)
+    // 2. Query ke Supabase untuk mendapatkan semua anime yang tayang hari ini
     const { data: activeTrackers, error: trackerError } = await supabaseAdmin
       .from('anime_tracker')
       .select('*')
@@ -61,6 +71,7 @@ export async function GET() {
       if (!existingNotif || existingNotif.length === 0) {
         const message = `Episode baru untuk anime "${anime.title}" tayang hari ini (${getIndonesianDay(anime.airing_day)} ${anime.airing_time ? 'pukul ' + anime.airing_time.slice(0, 5) : ''})!`;
 
+        // a. Simpan in-app notification
         const { error: insertError } = await supabaseAdmin
           .from('notifications')
           .insert({
@@ -71,9 +82,57 @@ export async function GET() {
           });
 
         if (insertError) {
-          console.error(`Gagal mengirim notifikasi untuk user ${anime.user_id}:`, insertError);
-        } else {
-          notificationsSent++;
+          console.error(`Gagal menyimpan notifikasi in-app untuk user ${anime.user_id}:`, insertError);
+          continue;
+        }
+
+        notificationsSent++;
+
+        // b. Ambil semua token push subscription milik user ini
+        const { data: subscriptions, error: subError } = await supabaseAdmin
+          .from('push_subscriptions')
+          .select('*')
+          .eq('user_id', anime.user_id);
+
+        if (subError) {
+          console.error(`Gagal memuat push subscriptions untuk user ${anime.user_id}:`, subError);
+          continue;
+        }
+
+        // c. Kirim notifikasi Web Push
+        if (subscriptions && subscriptions.length > 0) {
+          const payload = JSON.stringify({
+            title: 'Episode Baru Rilis! 📺',
+            body: message,
+            url: `${process.env.NEXT_PUBLIC_SUPABASE_URL ? new URL(request.url).origin : ''}/anime/${anime.id}`,
+            icon: anime.image_url || '/favicon.ico',
+          });
+
+          for (const sub of subscriptions) {
+            try {
+              await webpush.sendNotification(
+                {
+                  endpoint: sub.endpoint,
+                  keys: {
+                    p256dh: sub.p256dh,
+                    auth: sub.auth,
+                  },
+                },
+                payload
+              );
+            } catch (pushErr) {
+              console.error('Gagal mengirim Web Push:', pushErr);
+              const errorObj = pushErr as { statusCode?: number };
+              // Jika token kedaluwarsa atau diblokir (status 410 Gone), hapus dari database
+              if (errorObj.statusCode === 410 || errorObj.statusCode === 404) {
+                await supabaseAdmin
+                  .from('push_subscriptions')
+                  .delete()
+                  .eq('id', sub.id);
+                console.log(`Hapus push subscription kedaluwarsa ID: ${sub.id}`);
+              }
+            }
+          }
         }
       }
     }

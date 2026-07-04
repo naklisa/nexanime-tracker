@@ -395,7 +395,7 @@ export default function AnimeDetailPage() {
                             rel="noopener noreferrer"
                             className="text-xs text-slate-400 truncate hover:text-violet-400 flex items-center gap-1 mt-0.5"
                           >
-                            <span className="truncate max-w-[200px] sm:max-w-xs">{link.url}</span>
+                            <span className="truncate max-w-[120px] min-[380px]:max-w-[180px] sm:max-w-xs">{link.url}</span>
                             <ExternalLink className="h-3 w-3 shrink-0" />
                           </a>
                         </div>

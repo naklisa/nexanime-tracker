@@ -160,7 +160,7 @@ export default function DashboardPage() {
           </div>
         ) : (
           /* Anime Card Grid */
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-6">
             {filteredList.map((anime) => (
               <AnimeCard key={anime.id} anime={anime} onUpdate={fetchAnimeList} />
             ))}

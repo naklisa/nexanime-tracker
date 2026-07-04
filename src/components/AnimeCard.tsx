@@ -102,9 +102,9 @@ export default function AnimeCard({ anime, onUpdate }: AnimeCardProps) {
       </div>
 
       {/* Info Content */}
-      <div className="p-5 flex-1 flex flex-col justify-between">
+      <div className="p-3 sm:p-5 flex-1 flex flex-col justify-between">
         <div>
-          <h4 className="font-bold text-white text-base tracking-wide line-clamp-2 min-h-[3rem] group-hover:text-violet-400 transition-colors">
+          <h4 className="font-bold text-white text-sm sm:text-base tracking-wide line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem] group-hover:text-violet-400 transition-colors">
             {anime.title}
           </h4>
 
@@ -120,7 +120,7 @@ export default function AnimeCard({ anime, onUpdate }: AnimeCardProps) {
           )}
         </div>
 
-        <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
+        <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-white/5 flex items-center justify-between">
           <div className="flex flex-col">
             <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
               Progres

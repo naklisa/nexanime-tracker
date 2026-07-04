@@ -249,7 +249,7 @@ export default function Navbar({ onOpenAddModal }: NavbarProps) {
 
               {/* Notification Dropdown */}
               {isOpen && (
-                <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl border border-white/10 bg-[#161a25]/95 p-2 shadow-2xl backdrop-blur-xl transition-all">
+                <div className="fixed md:absolute left-4 right-4 md:left-auto md:right-0 mt-2 md:w-96 rounded-2xl border border-white/10 bg-[#161a25]/95 p-2 shadow-2xl backdrop-blur-xl transition-all">
                   <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">
                     <h3 className="text-sm font-bold text-white">Notifikasi Rilis</h3>
                     {unreadCount > 0 && (

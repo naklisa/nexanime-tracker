@@ -34,14 +34,22 @@ export default function AddAnimeModal({ isOpen, onClose, onAnimeAdded }: AddAnim
   useEffect(() => {
     if (searchQuery.trim().length < 3) {
       setSearchResults([]);
+      setErrorMsg(null);
       return;
     }
 
     setSearching(true);
+    setErrorMsg(null);
     const delayDebounceFn = setTimeout(async () => {
-      const results = await searchAnime(searchQuery);
-      setSearchResults(results);
-      setSearching(false);
+      try {
+        const results = await searchAnime(searchQuery);
+        setSearchResults(results);
+      } catch (err) {
+        setErrorMsg((err as Error).message || 'Gagal mengambil hasil pencarian.');
+        setSearchResults([]);
+      } finally {
+        setSearching(false);
+      }
     }, 600);
 
     return () => clearTimeout(delayDebounceFn);

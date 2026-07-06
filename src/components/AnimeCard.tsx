@@ -41,6 +41,7 @@ export default function AnimeCard({ anime, onUpdate }: AnimeCardProps) {
   };
 
   // Convert English airing day to Indonesian
+  // Jikan returns plural form e.g. "Fridays" — strip trailing 's' before lookup
   const getIndonesianDay = (day: string | null) => {
     if (!day) return null;
     const days: Record<string, string> = {
@@ -52,7 +53,8 @@ export default function AnimeCard({ anime, onUpdate }: AnimeCardProps) {
       friday: 'Jumat',
       saturday: 'Sabtu',
     };
-    return days[day.toLowerCase()] || day;
+    const normalized = day.toLowerCase().replace(/s$/, '');
+    return days[normalized] || day;
   };
 
   const statusColors = {

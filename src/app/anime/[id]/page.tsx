@@ -15,6 +15,17 @@ export default function AnimeDetailPage() {
   const id = params.id as string;
   const supabase = createClient();
 
+  // Helper: Jikan returns plural form e.g. "Fridays" — normalize before lookup
+  const getIndonesianDay = (day: string | null) => {
+    if (!day) return null;
+    const days: Record<string, string> = {
+      sunday: 'Minggu', monday: 'Senin', tuesday: 'Selasa',
+      wednesday: 'Rabu', thursday: 'Kamis', friday: 'Jumat', saturday: 'Sabtu',
+    };
+    const normalized = day.toLowerCase().replace(/s$/, '');
+    return days[normalized] || day;
+  };
+
   // Database states
   const [tracker, setTracker] = useState<AnimeTracker | null>(null);
   const [links, setLinks] = useState<StreamingLink[]>([]);
@@ -255,7 +266,7 @@ export default function AnimeDetailPage() {
                     <div className="flex justify-between">
                       <span>Jadwal Tayang</span>
                       <span className="text-violet-400 font-semibold">
-                        {tracker.airing_day}
+                        {getIndonesianDay(tracker.airing_day)}
                         {tracker.airing_time ? ` @ ${tracker.airing_time.slice(0, 5)}` : ''}
                       </span>
                     </div>

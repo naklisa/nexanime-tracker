@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { searchAnime } from '@/lib/jikan';
 import { JikanAnime } from '@/types';
 import { Search, Loader2, X, Plus, AlertCircle } from 'lucide-react';
+import { useModalNavigation } from '@/lib/useModalNavigation';
 
 interface AddAnimeModalProps {
   isOpen: boolean;
@@ -16,6 +17,9 @@ export default function AddAnimeModal({ isOpen, onClose, onAnimeAdded }: AddAnim
   const supabase = createClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<JikanAnime[]>([]);
+
+  // ESC key & mobile back button support
+  useModalNavigation(isOpen, onClose);
   const [searching, setSearching] = useState(false);
 
   // Form states for selected anime

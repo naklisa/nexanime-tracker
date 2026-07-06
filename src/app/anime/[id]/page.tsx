@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { getAnimeDetails } from '@/lib/jikan';
 import { AnimeTracker, StreamingLink, JikanAnime } from '@/types';
 import Navbar from '@/components/Navbar';
+import ConfirmModal from '@/components/ConfirmModal';
 import { Loader2, ArrowLeft, Plus, Trash2, Tv, ExternalLink, AlertCircle, CheckCircle, Save } from 'lucide-react';
 
 export default function AnimeDetailPage() {
@@ -39,6 +40,7 @@ export default function AnimeDetailPage() {
   const [addingLink, setAddingLink] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
   // Tracker editing state
   const [status, setStatus] = useState<'watching' | 'plan_to_watch' | 'completed'>('watching');
@@ -164,10 +166,6 @@ export default function AnimeDetailPage() {
   };
 
   const handleDeleteTracker = async () => {
-    if (!confirm('Apakah Anda yakin ingin berhenti melacak anime ini? Seluruh data tontonan dan link streaming Anda akan dihapus.')) {
-      return;
-    }
-
     setErrorMsg(null);
     try {
       const { error } = await supabase
@@ -296,7 +294,7 @@ export default function AnimeDetailPage() {
                 Hapus anime ini dari daftar tontonan Anda beserta semua streaming links-nya.
               </p>
               <button
-                onClick={handleDeleteTracker}
+                onClick={() => setConfirmDeleteOpen(true)}
                 className="w-full rounded-2xl bg-red-900/20 border border-red-500/20 py-3 text-xs font-bold text-red-400 hover:bg-red-900/40 transition-all active:scale-95"
               >
                 Hapus dari Tracker
@@ -475,6 +473,16 @@ export default function AnimeDetailPage() {
 
         </div>
       </main>
+
+      <ConfirmModal
+        isOpen={confirmDeleteOpen}
+        title="Hentikan Pelacakan?"
+        message={`Apakah kamu yakin ingin berhenti melacak "${tracker?.title}"? Seluruh data progres dan link streaming akan dihapus permanen.`}
+        confirmLabel="Ya, Hapus"
+        dangerous
+        onConfirm={() => { setConfirmDeleteOpen(false); handleDeleteTracker(); }}
+        onCancel={() => setConfirmDeleteOpen(false)}
+      />
     </div>
   );
 }

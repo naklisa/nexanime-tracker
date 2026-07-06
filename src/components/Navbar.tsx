@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { DbNotification } from '@/types';
-import { Bell, LogOut, Plus, Trash2, Circle, Smartphone, BellRing, Loader2 } from 'lucide-react';
+import { Bell, LogOut, Plus, Trash2, Circle, Smartphone, BellRing, Loader2, CalendarDays } from 'lucide-react';
 import { useModalNavigation } from '@/lib/useModalNavigation';
 
 interface NavbarProps {
@@ -199,6 +199,17 @@ export default function Navbar({ onOpenAddModal }: NavbarProps) {
             <Link href="/dashboard" className="flex items-center gap-2.5 text-xl font-bold tracking-wider text-violet-400">
               <img src="/Logo.png" alt="NimeTrack Logo" className="h-8 w-auto object-contain" />
               <span>NIME<span className="text-emerald-400">TRACK</span></span>
+            </Link>
+          </div>
+
+          {/* Nav Links */}
+          <div className="hidden sm:flex items-center gap-1">
+            <Link
+              href="/schedule"
+              className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-slate-400 hover:bg-white/5 hover:text-white transition-all"
+            >
+              <CalendarDays className="h-4 w-4" />
+              <span>Jadwal</span>
             </Link>
           </div>
 

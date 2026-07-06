@@ -1,18 +1,23 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { AnimeTracker } from '@/types';
 import Navbar from '@/components/Navbar';
 import AnimeCard from '@/components/AnimeCard';
 import AddAnimeModal from '@/components/AddAnimeModal';
-import { Loader2, Plus, Compass } from 'lucide-react';
+import { Loader2, Plus, Compass, Search, ArrowUpDown } from 'lucide-react';
+
+type StatusFilter = 'all' | 'watching' | 'plan_to_watch' | 'completed';
+type SortOption = 'newest' | 'oldest' | 'az' | 'za';
 
 export default function DashboardPage() {
   const supabase = createClient();
   const [animeList, setAnimeList] = useState<AnimeTracker[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'watching' | 'plan_to_watch' | 'completed'>('all');
+  const [filter, setFilter] = useState<StatusFilter>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [addModalOpen, setAddModalOpen] = useState(false);
 
   const fetchAnimeList = useCallback(async () => {
@@ -38,10 +43,27 @@ export default function DashboardPage() {
     fetchAnimeList();
   }, [fetchAnimeList]);
 
-  const filteredList = animeList.filter((anime) => {
-    if (filter === 'all') return true;
-    return anime.status === filter;
-  });
+  const filteredAndSorted = useMemo(() => {
+    let list = animeList;
+
+    // Status filter
+    if (filter !== 'all') list = list.filter((a) => a.status === filter);
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      list = list.filter((a) => a.title.toLowerCase().includes(q));
+    }
+
+    // Sort
+    const sorted = [...list];
+    if (sortBy === 'newest') sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    else if (sortBy === 'oldest') sorted.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    else if (sortBy === 'az') sorted.sort((a, b) => a.title.localeCompare(b.title));
+    else if (sortBy === 'za') sorted.sort((a, b) => b.title.localeCompare(a.title));
+
+    return sorted;
+  }, [animeList, filter, searchQuery, sortBy]);
 
   const getStats = () => {
     const total = animeList.length;
@@ -55,10 +77,8 @@ export default function DashboardPage() {
 
   return (
     <div className="flex min-h-screen flex-col pb-12">
-      {/* Navbar */}
       <Navbar onOpenAddModal={() => setAddModalOpen(true)} />
 
-      {/* Main Container */}
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 w-full flex-1">
         {/* Dashboard Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
@@ -96,32 +116,64 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Filter Bar */}
-        <div className="flex flex-wrap items-center gap-2 mb-8 border-b border-white/5 pb-5">
-          {(['all', 'watching', 'plan_to_watch', 'completed'] as const).map((type) => {
-            const label = {
-              all: 'Semua',
-              watching: 'Sedang Ditonton',
-              plan_to_watch: 'Rencana Tonton',
-              completed: 'Selesai',
-            }[type];
+        {/* Filter Bar + Search + Sort */}
+        <div className="mb-8 space-y-4 border-b border-white/5 pb-5">
+          {/* Status Filters */}
+          <div className="flex flex-wrap items-center gap-2">
+            {(['all', 'watching', 'plan_to_watch', 'completed'] as const).map((type) => {
+              const label = { all: 'Semua', watching: 'Sedang Ditonton', plan_to_watch: 'Rencana Tonton', completed: 'Selesai' }[type];
+              return (
+                <button
+                  key={type}
+                  onClick={() => setFilter(type)}
+                  className={`rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+                    filter === type
+                      ? 'bg-violet-600 text-white shadow-md shadow-violet-900/10'
+                      : 'border border-white/5 bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
 
-            const isActive = filter === type;
+          {/* Search + Sort Row */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            {/* Search Input */}
+            <div className="relative flex-1">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Cari judul anime..."
+                className="w-full rounded-2xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-500 outline-none transition-all focus:border-violet-500 focus:bg-white/10"
+              />
+            </div>
 
-            return (
-              <button
-                key={type}
-                onClick={() => setFilter(type)}
-                className={`rounded-xl px-4 py-2 text-xs font-bold transition-all ${
-                  isActive
-                    ? 'bg-violet-600 text-white shadow-md shadow-violet-900/10'
-                    : 'border border-white/5 bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
-                }`}
+            {/* Sort Dropdown */}
+            <div className="relative shrink-0">
+              <ArrowUpDown className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none" />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortOption)}
+                className="appearance-none w-full sm:w-auto rounded-2xl border border-white/10 bg-[#161a25] py-2.5 pl-10 pr-10 text-sm text-white outline-none focus:border-violet-500 cursor-pointer"
               >
-                {label}
-              </button>
-            );
-          })}
+                <option value="newest">Terbaru Ditambahkan</option>
+                <option value="oldest">Terlama Ditambahkan</option>
+                <option value="az">Judul A–Z</option>
+                <option value="za">Judul Z–A</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Result count hint */}
+          {(searchQuery.trim() || filter !== 'all') && (
+            <p className="text-xs text-slate-500">
+              Menampilkan <span className="text-violet-400 font-semibold">{filteredAndSorted.length}</span> dari {animeList.length} anime
+            </p>
+          )}
         </div>
 
         {/* Main Loading / Grid */}
@@ -130,25 +182,28 @@ export default function DashboardPage() {
             <Loader2 className="h-10 w-10 animate-spin text-violet-500 mb-3" />
             <p className="text-sm text-slate-400">Memuat daftar anime...</p>
           </div>
-        ) : filteredList.length === 0 ? (
-          /* Empty State */
+        ) : filteredAndSorted.length === 0 ? (
           <div className="glass rounded-3xl p-12 text-center max-w-xl mx-auto flex flex-col items-center justify-center border-dashed border-2 border-white/5 mt-6">
             <div className="h-16 w-16 flex items-center justify-center rounded-2xl bg-white/5 text-slate-500 mb-6">
-              <Compass className="h-8 w-8 text-violet-500/80 animate-pulse" />
+              {searchQuery.trim() ? (
+                <Search className="h-8 w-8 text-violet-500/80" />
+              ) : (
+                <Compass className="h-8 w-8 text-violet-500/80 animate-pulse" />
+              )}
             </div>
-            <h3 className="text-lg font-bold text-white mb-2">Belum Ada Anime</h3>
+            <h3 className="text-lg font-bold text-white mb-2">
+              {searchQuery.trim() ? 'Anime Tidak Ditemukan' : 'Belum Ada Anime'}
+            </h3>
             <p className="text-sm text-slate-400 mb-8 max-w-sm">
-              {filter === 'all'
+              {searchQuery.trim()
+                ? `Tidak ada anime dengan judul "${searchQuery}" di daftar kamu.`
+                : filter === 'all'
                 ? 'Daftar pelacakan Anda kosong. Mulai tambahkan anime yang sedang Anda tonton sekarang!'
                 : `Tidak ada anime dengan status "${
-                    {
-                      watching: 'Sedang Ditonton',
-                      plan_to_watch: 'Rencana Tonton',
-                      completed: 'Selesai',
-                    }[filter]
+                    { watching: 'Sedang Ditonton', plan_to_watch: 'Rencana Tonton', completed: 'Selesai' }[filter]
                   }".`}
             </p>
-            {filter === 'all' && (
+            {!searchQuery.trim() && filter === 'all' && (
               <button
                 onClick={() => setAddModalOpen(true)}
                 className="flex items-center gap-1.5 rounded-2xl bg-violet-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-violet-900/20 transition-all hover:bg-violet-500 active:scale-95"
@@ -159,16 +214,14 @@ export default function DashboardPage() {
             )}
           </div>
         ) : (
-          /* Anime Card Grid */
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-6">
-            {filteredList.map((anime) => (
+            {filteredAndSorted.map((anime) => (
               <AnimeCard key={anime.id} anime={anime} onUpdate={fetchAnimeList} />
             ))}
           </div>
         )}
       </main>
 
-      {/* Add Anime Modal */}
       <AddAnimeModal
         isOpen={addModalOpen}
         onClose={() => setAddModalOpen(false)}

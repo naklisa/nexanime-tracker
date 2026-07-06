@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { DbNotification } from '@/types';
 import { Bell, LogOut, Plus, Trash2, Circle, Smartphone, BellRing, Loader2, CalendarDays, Menu, X } from 'lucide-react';
-import { useModalNavigation } from '@/lib/useModalNavigation';
 
 interface NavbarProps {
   onOpenAddModal?: () => void;
@@ -26,10 +25,17 @@ export default function Navbar({ onOpenAddModal }: NavbarProps) {
   const [hasPushPermission, setHasPushPermission] = useState(false);
   const [pushLoading, setPushLoading] = useState(false);
 
-  // ESC key & mobile back button support for notification dropdown
-  useModalNavigation(isOpen, () => setIsOpen(false));
-  // ESC key & mobile back button support for mobile menu dropdown
-  useModalNavigation(mobileMenuOpen, () => setMobileMenuOpen(false));
+  // ESC key listener for closing dropdowns without history side effects
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+        setMobileMenuOpen(false);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Close mobile menu on click outside
   useEffect(() => {

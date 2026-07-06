@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { DbNotification } from '@/types';
-import { Bell, LogOut, Plus, Trash2, Circle, Smartphone, BellRing, Loader2, CalendarDays } from 'lucide-react';
+import { Bell, LogOut, Plus, Trash2, Circle, Smartphone, BellRing, Loader2, CalendarDays, Menu, X } from 'lucide-react';
 import { useModalNavigation } from '@/lib/useModalNavigation';
 
 interface NavbarProps {
@@ -18,12 +18,32 @@ export default function Navbar({ onOpenAddModal }: NavbarProps) {
   const [notifications, setNotifications] = useState<DbNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  
   const [hasPushPermission, setHasPushPermission] = useState(false);
   const [pushLoading, setPushLoading] = useState(false);
 
   // ESC key & mobile back button support for notification dropdown
   useModalNavigation(isOpen, () => setIsOpen(false));
+  // ESC key & mobile back button support for mobile menu dropdown
+  useModalNavigation(mobileMenuOpen, () => setMobileMenuOpen(false));
+
+  // Close mobile menu on click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        mobileMenuRef.current && 
+        !mobileMenuRef.current.contains(event.target as Node)
+      ) {
+        setMobileMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if ('Notification' in window) {
@@ -202,26 +222,26 @@ export default function Navbar({ onOpenAddModal }: NavbarProps) {
             </Link>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-1.5 sm:gap-3">
-            {/* Jadwal Link (Exposed in mobile!) */}
+          {/* Action Buttons (Desktop only, hidden on mobile) */}
+          <div className="hidden sm:flex items-center gap-3">
+            {/* Jadwal Link */}
             <Link
               href="/schedule"
-              className="flex items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 p-2 sm:px-3.5 sm:py-2 text-sm font-semibold text-slate-300 transition-all hover:bg-white/10 hover:text-white active:scale-95"
+              className="flex items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-sm font-semibold text-slate-300 transition-all hover:bg-white/10 hover:text-white active:scale-95"
               title="Jadwal Rilis"
             >
-              <CalendarDays className="h-4.5 w-4.5 text-slate-400 sm:text-slate-300" />
-              <span className="hidden sm:inline">Jadwal</span>
+              <CalendarDays className="h-4.5 w-4.5 text-slate-300" />
+              <span>Jadwal</span>
             </Link>
 
             {onOpenAddModal && (
               <button
                 onClick={onOpenAddModal}
-                className="flex items-center justify-center gap-1.5 rounded-xl bg-violet-600 p-2 sm:px-3.5 sm:py-2 text-sm font-semibold text-white shadow-lg shadow-violet-900/20 transition-all hover:bg-violet-500 hover:shadow-violet-800/40 active:scale-95"
+                className="flex items-center justify-center gap-1.5 rounded-xl bg-violet-600 px-3.5 py-2 text-sm font-semibold text-white shadow-lg shadow-violet-900/20 transition-all hover:bg-violet-500 hover:shadow-violet-800/40 active:scale-95"
                 title="Track Anime Baru"
               >
                 <Plus className="h-4.5 w-4.5" />
-                <span className="hidden sm:inline">Track Anime</span>
+                <span>Track Anime</span>
               </button>
             )}
 
@@ -243,12 +263,24 @@ export default function Navbar({ onOpenAddModal }: NavbarProps) {
               ) : (
                 <Smartphone className="h-4.5 w-4.5" />
               )}
-              <span className="hidden md:inline text-xs font-semibold">
+              <span className="hidden lg:inline text-xs font-semibold">
                 {hasPushPermission ? 'Notifikasi Aktif' : 'Aktifkan Notifikasi HP'}
               </span>
             </button>
 
-            {/* Notification Bell */}
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              className="rounded-xl border border-white/10 bg-white/5 p-2 text-slate-300 transition-all hover:bg-red-950/20 hover:border-red-900/30 hover:text-red-400"
+              title="Logout"
+            >
+              <LogOut className="h-4.5 w-4.5" />
+            </button>
+          </div>
+
+          {/* Common / Mobile Controls */}
+          <div className="flex items-center gap-2">
+            {/* Notification Bell (Exposed everywhere) */}
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsOpen(!isOpen)}
@@ -330,17 +362,84 @@ export default function Navbar({ onOpenAddModal }: NavbarProps) {
               )}
             </div>
 
-            {/* Logout Button */}
+            {/* Hamburger Mobile Menu Button */}
             <button
-              onClick={handleLogout}
-              className="rounded-xl border border-white/10 bg-white/5 p-2 text-slate-300 transition-all hover:bg-red-950/20 hover:border-red-900/30 hover:text-red-400"
-              title="Logout"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="flex sm:hidden items-center justify-center rounded-xl border border-white/10 bg-white/5 p-2 text-slate-300 transition-all hover:bg-white/10 active:scale-95"
+              title="Menu"
             >
-              <LogOut className="h-4.5 w-4.5" />
+              {mobileMenuOpen ? (
+                <X className="h-4.5 w-4.5" />
+              ) : (
+                <Menu className="h-4.5 w-4.5" />
+              )}
             </button>
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu Panel */}
+      {mobileMenuOpen && (
+        <div 
+          ref={mobileMenuRef}
+          className="sm:hidden border-t border-white/5 bg-[#161a25]/95 backdrop-blur-xl px-4 py-4 space-y-3.5 shadow-2xl animate-in slide-in-from-top-4 duration-200"
+        >
+          <Link
+            href="/schedule"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center gap-3 rounded-2xl border border-white/5 bg-white/3 p-3.5 text-sm font-bold text-white transition-all hover:bg-white/10"
+          >
+            <CalendarDays className="h-5 w-5 text-violet-400" />
+            <span>Jadwal Rilis Mingguan</span>
+          </Link>
+
+          {onOpenAddModal && (
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenAddModal();
+              }}
+              className="w-full flex items-center gap-3 rounded-2xl bg-violet-600 p-3.5 text-sm font-bold text-white shadow-lg shadow-violet-900/20 transition-all hover:bg-violet-500"
+            >
+              <Plus className="h-5 w-5" />
+              <span>Track Anime Baru</span>
+            </button>
+          )}
+
+          <button
+            onClick={() => {
+              setMobileMenuOpen(false);
+              handleEnablePush();
+            }}
+            disabled={pushLoading || hasPushPermission}
+            className={`w-full flex items-center gap-3 rounded-2xl border p-3.5 text-sm font-bold transition-all disabled:opacity-50 ${
+              hasPushPermission
+                ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+                : 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'
+            }`}
+          >
+            {pushLoading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : hasPushPermission ? (
+              <BellRing className="h-5 w-5 text-emerald-400" />
+            ) : (
+              <Smartphone className="h-5 w-5 text-violet-400" />
+            )}
+            <span>{hasPushPermission ? 'Notifikasi HP Aktif' : 'Aktifkan Notifikasi HP'}</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setMobileMenuOpen(false);
+              handleLogout();
+            }}
+            className="w-full flex items-center gap-3 rounded-2xl border border-red-500/10 bg-red-950/5 p-3.5 text-sm font-bold text-red-400 transition-all hover:bg-red-950/20 hover:border-red-900/20"
+          >
+            <LogOut className="h-5 w-5" />
+            <span>Logout Akun</span>
+          </button>
+        </div>
+      )}
     </nav>
   );
 }

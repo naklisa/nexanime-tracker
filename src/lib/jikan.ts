@@ -1,5 +1,7 @@
 import { JikanAnime } from '@/types';
 
+const JIKAN_BASE_URL = 'https://api.jikan.moe/v4';
+
 export async function searchAnime(query: string): Promise<JikanAnime[]> {
   if (!query || query.trim().length < 3) return [];
 

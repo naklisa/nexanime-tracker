@@ -112,9 +112,9 @@ export default function AnimeCard({ anime, onUpdate }: AnimeCardProps) {
 
           {/* Schedule Info */}
           {anime.airing_day && (
-            <p className="text-xs text-slate-400 mt-2 flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-violet-500"></span>
-              <span>
+            <p className="text-[10px] sm:text-xs text-slate-400 mt-2 flex items-center gap-1 sm:gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-violet-500 shrink-0"></span>
+              <span className="truncate">
                 Rilis: {getIndonesianDay(anime.airing_day)}
                 {anime.airing_time ? ` pukul ${anime.airing_time.slice(0, 5)}` : ''}
               </span>
@@ -124,20 +124,20 @@ export default function AnimeCard({ anime, onUpdate }: AnimeCardProps) {
 
         <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-white/5 flex items-center justify-between">
           <div className="flex flex-col">
-            <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+            <span className="text-[9px] sm:text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
               Progres
             </span>
-            <span className="text-sm font-bold text-slate-200">
+            <span className="text-xs sm:text-sm font-bold text-slate-200">
               Eps {episode}
             </span>
           </div>
 
           <Link
             href={`/anime/${anime.id}`}
-            className="flex items-center gap-1 text-xs font-bold text-violet-400 group-hover:text-violet-300 hover:underline"
+            className="flex items-center gap-0.5 sm:gap-1 text-[11px] sm:text-xs font-bold text-violet-400 group-hover:text-violet-300 hover:underline"
           >
             <span>Detail</span>
-            <ChevronRight className="h-3.5 w-3.5" />
+            <ChevronRight className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
           </Link>
         </div>
       </div>

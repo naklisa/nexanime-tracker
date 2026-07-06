@@ -215,7 +215,7 @@ export default function AnimeDetailPage() {
       <Navbar />
 
       {/* Banner Backdrop */}
-      <div className="relative w-full h-48 md:h-64 overflow-hidden bg-slate-950/80 border-b border-white/5">
+      <div className="relative w-full h-36 sm:h-48 md:h-64 overflow-hidden bg-slate-950/80 border-b border-white/5">
         {animeDetails?.images.jpg.large_image_url && (
           <img
             src={animeDetails.images.jpg.large_image_url}
@@ -224,7 +224,7 @@ export default function AnimeDetailPage() {
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-[#0b0c10] to-transparent"></div>
-        <div className="absolute bottom-6 left-6 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 flex items-center gap-3">
+        <div className="absolute bottom-4 left-0 right-0 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 flex items-center gap-3">
           <Link href="/dashboard" className="rounded-xl border border-white/10 bg-black/40 p-2.5 text-slate-300 transition-all hover:bg-black/60 hover:text-white">
             <ArrowLeft className="h-4 w-4" />
           </Link>

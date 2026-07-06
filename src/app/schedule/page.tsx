@@ -56,18 +56,18 @@ export default function SchedulePage() {
     <div className="flex min-h-screen flex-col pb-16">
       <Navbar />
 
-      <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8 w-full flex-1">
+      <main className="mx-auto max-w-4xl px-3.5 py-6 sm:px-6 lg:px-8 w-full flex-1">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-1">
-            <div className="h-10 w-10 flex items-center justify-center rounded-2xl bg-violet-600/10 text-violet-400">
-              <CalendarDays className="h-5 w-5" />
-            </div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-white">Jadwal Minggu Ini</h1>
+        <div className="mb-6 flex gap-3">
+          <div className="h-10 w-10 flex items-center justify-center rounded-2xl bg-violet-600/10 text-violet-400 shrink-0">
+            <CalendarDays className="h-5 w-5" />
           </div>
-          <p className="text-sm text-slate-400 ml-[3.25rem]">
-            Anime yang tayang minggu ini — diurutkan mulai hari ini
-          </p>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white leading-tight">Jadwal Minggu Ini</h1>
+            <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
+              Anime yang tayang minggu ini — diurutkan mulai hari ini
+            </p>
+          </div>
         </div>
 
         {loading ? (
@@ -76,7 +76,7 @@ export default function SchedulePage() {
             <p className="text-sm text-slate-400">Memuat jadwal...</p>
           </div>
         ) : (
-          <div className="space-y-5">
+          <div className="space-y-4">
             {weekOrder.map((dayIdx) => {
               const dayAnime = grouped[dayIdx];
               const isToday = dayIdx === todayIdx;
@@ -85,30 +85,30 @@ export default function SchedulePage() {
               return (
                 <div key={dayIdx} className={`glass rounded-3xl overflow-hidden transition-all ${isToday ? 'border-violet-500/30 shadow-lg shadow-violet-900/10' : ''}`}>
                   {/* Day Header */}
-                  <div className={`flex items-center justify-between px-5 py-3.5 border-b border-white/5 ${isToday ? 'bg-violet-600/10' : 'bg-white/3'}`}>
-                    <div className="flex items-center gap-3">
-                      <span className={`text-base font-extrabold tracking-wide ${isToday ? 'text-violet-400' : 'text-white'}`}>
+                  <div className={`flex items-center justify-between px-4 py-3 sm:px-5 sm:py-3.5 border-b border-white/5 ${isToday ? 'bg-violet-600/10' : 'bg-white/3'}`}>
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <span className={`text-sm sm:text-base font-extrabold tracking-wide ${isToday ? 'text-violet-400' : 'text-white'}`}>
                         {DAYS_ID[dayIdx]}
                       </span>
                       {isToday && (
-                        <span className="rounded-full bg-violet-500 px-2.5 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider animate-pulse">
+                        <span className="rounded-full bg-violet-500 px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-white uppercase tracking-wider animate-pulse">
                           Hari Ini
                         </span>
                       )}
                       {isTomorrow && (
-                        <span className="rounded-full bg-slate-700 px-2.5 py-0.5 text-[10px] font-bold text-slate-300 uppercase tracking-wider">
+                        <span className="rounded-full bg-slate-700 px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-slate-300 uppercase tracking-wider">
                           Besok
                         </span>
                       )}
                     </div>
-                    <span className={`text-xs font-semibold ${dayAnime.length > 0 ? 'text-violet-400' : 'text-slate-600'}`}>
+                    <span className={`text-[11px] sm:text-xs font-semibold ${dayAnime.length > 0 ? 'text-violet-400' : 'text-slate-600'}`}>
                       {dayAnime.length} anime
                     </span>
                   </div>
 
                   {/* Anime List */}
                   {dayAnime.length === 0 ? (
-                    <div className="px-5 py-5 text-center text-sm text-slate-600">
+                    <div className="px-4 py-4 text-center text-xs sm:text-sm text-slate-600">
                       Tidak ada anime yang tayang
                     </div>
                   ) : (
@@ -117,7 +117,7 @@ export default function SchedulePage() {
                         <Link
                           key={anime.id}
                           href={`/anime/${anime.id}`}
-                          className="flex items-center gap-4 px-5 py-3.5 hover:bg-white/5 transition-all group"
+                          className="flex items-center gap-3 sm:gap-4 px-4 py-3 sm:px-5 sm:py-3.5 hover:bg-white/5 transition-all group"
                         >
                           {/* Cover */}
                           <div className="h-12 w-9 shrink-0 rounded-lg overflow-hidden bg-slate-900 shadow">
@@ -132,17 +132,17 @@ export default function SchedulePage() {
 
                           {/* Info */}
                           <div className="flex-1 min-w-0">
-                            <h3 className="text-sm font-bold text-white truncate group-hover:text-violet-400 transition-colors">
+                            <h3 className="text-xs sm:text-sm font-bold text-white truncate group-hover:text-violet-400 transition-colors">
                               {anime.title}
                             </h3>
-                            <div className="flex items-center gap-2 mt-0.5">
+                            <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5">
                               {anime.airing_time && (
-                                <span className="flex items-center gap-1 text-[11px] text-slate-400">
-                                  <Clock className="h-3 w-3" />
+                                <span className="flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-[11px] text-slate-400">
+                                  <Clock className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                                   {anime.airing_time.slice(0, 5)} WIB
                                 </span>
                               )}
-                              <span className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                              <span className={`rounded px-1 py-0.2 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider ${
                                 anime.status === 'watching'
                                   ? 'bg-blue-500/10 text-blue-400'
                                   : 'bg-amber-500/10 text-amber-400'
@@ -152,7 +152,7 @@ export default function SchedulePage() {
                             </div>
                           </div>
 
-                          <ChevronRight className="h-4 w-4 text-slate-600 group-hover:text-violet-400 transition-colors shrink-0" />
+                          <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-600 group-hover:text-violet-400 transition-colors shrink-0" />
                         </Link>
                       ))}
                     </div>

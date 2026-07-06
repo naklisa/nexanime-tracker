@@ -198,29 +198,29 @@ export default function Navbar({ onOpenAddModal }: NavbarProps) {
           <div className="flex items-center">
             <Link href="/dashboard" className="flex items-center gap-2.5 text-xl font-bold tracking-wider text-violet-400">
               <img src="/Logo.png" alt="NimeTrack Logo" className="h-8 w-auto object-contain" />
-              <span>NIME<span className="text-emerald-400">TRACK</span></span>
-            </Link>
-          </div>
-
-          {/* Nav Links */}
-          <div className="hidden sm:flex items-center gap-1">
-            <Link
-              href="/schedule"
-              className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-slate-400 hover:bg-white/5 hover:text-white transition-all"
-            >
-              <CalendarDays className="h-4 w-4" />
-              <span>Jadwal</span>
+              <span className="hidden min-[400px]:inline">NIME<span className="text-emerald-400">TRACK</span></span>
             </Link>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5 sm:gap-3">
+            {/* Jadwal Link (Exposed in mobile!) */}
+            <Link
+              href="/schedule"
+              className="flex items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 p-2 sm:px-3.5 sm:py-2 text-sm font-semibold text-slate-300 transition-all hover:bg-white/10 hover:text-white active:scale-95"
+              title="Jadwal Rilis"
+            >
+              <CalendarDays className="h-4.5 w-4.5 text-slate-400 sm:text-slate-300" />
+              <span className="hidden sm:inline">Jadwal</span>
+            </Link>
+
             {onOpenAddModal && (
               <button
                 onClick={onOpenAddModal}
-                className="flex items-center gap-1.5 rounded-xl bg-violet-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-violet-900/20 transition-all hover:bg-violet-500 hover:shadow-violet-800/40 active:scale-95"
+                className="flex items-center justify-center gap-1.5 rounded-xl bg-violet-600 p-2 sm:px-3.5 sm:py-2 text-sm font-semibold text-white shadow-lg shadow-violet-900/20 transition-all hover:bg-violet-500 hover:shadow-violet-800/40 active:scale-95"
+                title="Track Anime Baru"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-4.5 w-4.5" />
                 <span className="hidden sm:inline">Track Anime</span>
               </button>
             )}
@@ -229,7 +229,7 @@ export default function Navbar({ onOpenAddModal }: NavbarProps) {
             <button
               onClick={handleEnablePush}
               disabled={pushLoading || hasPushPermission}
-              className={`rounded-xl border p-2.5 transition-all active:scale-95 disabled:pointer-events-none flex items-center justify-center gap-1.5 ${
+              className={`rounded-xl border p-2 transition-all active:scale-95 disabled:pointer-events-none flex items-center justify-center gap-1.5 ${
                 hasPushPermission
                   ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
                   : 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white'
@@ -237,11 +237,11 @@ export default function Navbar({ onOpenAddModal }: NavbarProps) {
               title={hasPushPermission ? 'Notifikasi HP Aktif' : 'Aktifkan Notifikasi HP'}
             >
               {pushLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <Loader2 className="h-4.5 w-4.5 animate-spin" />
               ) : hasPushPermission ? (
-                <BellRing className="h-5 w-5" />
+                <BellRing className="h-4.5 w-4.5" />
               ) : (
-                <Smartphone className="h-5 w-5" />
+                <Smartphone className="h-4.5 w-4.5" />
               )}
               <span className="hidden md:inline text-xs font-semibold">
                 {hasPushPermission ? 'Notifikasi Aktif' : 'Aktifkan Notifikasi HP'}
@@ -252,11 +252,11 @@ export default function Navbar({ onOpenAddModal }: NavbarProps) {
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="relative rounded-xl border border-white/10 bg-white/5 p-2.5 text-slate-300 transition-all hover:bg-white/10 hover:text-white"
+                className="relative rounded-xl border border-white/10 bg-white/5 p-2 text-slate-300 transition-all hover:bg-white/10 hover:text-white"
               >
-                <Bell className="h-5 w-5" />
+                <Bell className="h-4.5 w-4.5" />
                 {unreadCount > 0 && (
-                  <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-black ring-2 ring-[#0b0c10]">
+                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[9px] font-bold text-black ring-2 ring-[#0b0c10]">
                     {unreadCount}
                   </span>
                 )}
@@ -333,10 +333,10 @@ export default function Navbar({ onOpenAddModal }: NavbarProps) {
             {/* Logout Button */}
             <button
               onClick={handleLogout}
-              className="rounded-xl border border-white/10 bg-white/5 p-2.5 text-slate-300 transition-all hover:bg-red-950/20 hover:border-red-900/30 hover:text-red-400"
+              className="rounded-xl border border-white/10 bg-white/5 p-2 text-slate-300 transition-all hover:bg-red-950/20 hover:border-red-900/30 hover:text-red-400"
               title="Logout"
             >
-              <LogOut className="h-5 w-5" />
+              <LogOut className="h-4.5 w-4.5" />
             </button>
           </div>
         </div>

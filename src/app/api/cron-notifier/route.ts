@@ -65,11 +65,7 @@ export async function GET(request: Request) {
 
     // 3. Iterasi setiap anime yang rilis hari ini
     for (const anime of activeTrackers) {
-      // Pengecekan jam tayang: lewati jika belum masuk waktu rilis
-      if (anime.airing_time && currentJstTimeStr < anime.airing_time) {
-        console.log(`Lewati ${anime.title}: belum saatnya rilis (Jadwal JST: ${anime.airing_time}, Sekarang JST: ${currentJstTimeStr})`);
-        continue;
-      }
+
 
       // Periksa apakah notifikasi untuk anime ini dan user ini sudah dikirim dalam 20 jam terakhir
       const { data: existingNotif, error: notifCheckError } = await supabaseAdmin

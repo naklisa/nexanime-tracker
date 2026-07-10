@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { AnimeTracker } from '@/types';
-import { Tv, Plus, ChevronRight } from 'lucide-react';
+import { Tv, Plus, ChevronRight, Heart } from 'lucide-react';
 
 interface AnimeCardProps {
   anime: AnimeTracker;
@@ -14,7 +14,36 @@ interface AnimeCardProps {
 export default function AnimeCard({ anime, onUpdate }: AnimeCardProps) {
   const supabase = createClient();
   const [episode, setEpisode] = useState(anime.last_watched_episode);
+  const [isFavorite, setIsFavorite] = useState(anime.is_favorite);
   const [updating, setUpdating] = useState(false);
+
+  useEffect(() => {
+    setIsFavorite(anime.is_favorite);
+  }, [anime.is_favorite]);
+
+  const toggleFavorite = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (updating) return;
+
+    setUpdating(true);
+    const nextFavorite = !isFavorite;
+    
+    try {
+      const { error } = await supabase
+        .from('anime_tracker')
+        .update({ is_favorite: nextFavorite })
+        .eq('id', anime.id);
+
+      if (error) throw error;
+      setIsFavorite(nextFavorite);
+      onUpdate();
+    } catch (err) {
+      console.error('Error toggling favorite:', err);
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   const incrementEpisode = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -89,6 +118,20 @@ export default function AnimeCard({ anime, onUpdate }: AnimeCardProps) {
         <span className={`absolute left-3 top-3 rounded-xl border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md ${statusColors[anime.status]}`}>
           {statusLabels[anime.status]}
         </span>
+
+        {/* Favorite Button Over Image */}
+        <button
+          onClick={toggleFavorite}
+          disabled={updating}
+          className={`absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-xl border backdrop-blur-md transition-all duration-300 hover:scale-110 active:scale-90 ${
+            isFavorite
+              ? 'bg-red-500/20 border-red-500/30 text-red-500'
+              : 'bg-black/40 border-white/10 text-slate-400 hover:text-white'
+          }`}
+          title={isFavorite ? 'Hapus dari Favorit' : 'Tambah ke Favorit'}
+        >
+          <Heart className={`h-4 w-4 ${isFavorite ? 'fill-red-500' : ''}`} />
+        </button>
 
         {/* Quick Increment Episode Overlay */}
         {anime.status !== 'completed' && (

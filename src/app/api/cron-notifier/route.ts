@@ -26,25 +26,35 @@ export async function GET(request: Request) {
   );
 
   try {
-    // 1. Dapatkan Hari ini dalam format JST (Japan Standard Time)
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const jstTime = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
-    const currentDayJST = days[jstTime.getDay()]; // e.g. "Sunday"
+    // 1. Dapatkan Hari & Jam ini dalam format JST (Japan Standard Time) secara aman
+    const currentDayJST = new Intl.DateTimeFormat('en-US', {
+      weekday: 'long',
+      timeZone: 'Asia/Tokyo'
+    }).format(new Date()); // e.g. "Sunday" or "Friday"
 
-    console.log(`Menjalankan cron-notifier untuk hari JST: ${currentDayJST}`);
+    const currentJstTimeStr = new Intl.DateTimeFormat('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hourCycle: 'h23',
+      timeZone: 'Asia/Tokyo'
+    }).format(new Date()); // e.g. "17:15:00"
 
-    // 2. Query ke Supabase untuk mendapatkan semua anime yang tayang hari ini
+    console.log(`Menjalankan cron-notifier untuk hari JST: ${currentDayJST} @ ${currentJstTimeStr}`);
+
+    // 2. Query ke Supabase untuk mendapatkan semua anime aktif yang tayang hari ini (kecuali yang sudah completed)
     const { data: activeTrackers, error: trackerError } = await supabaseAdmin
       .from('anime_tracker')
       .select('*')
-      .ilike('airing_day', `%${currentDayJST}%`);
+      .ilike('airing_day', `%${currentDayJST}%`)
+      .neq('status', 'completed');
 
     if (trackerError) throw trackerError;
 
     if (!activeTrackers || activeTrackers.length === 0) {
       return NextResponse.json({
         success: true,
-        message: `Tidak ada anime yang tayang pada hari ${currentDayJST} JST.`,
+        message: `Tidak ada anime aktif yang tayang pada hari ${currentDayJST} JST.`,
         notifications_sent: 0,
       });
     }
@@ -55,6 +65,12 @@ export async function GET(request: Request) {
 
     // 3. Iterasi setiap anime yang rilis hari ini
     for (const anime of activeTrackers) {
+      // Pengecekan jam tayang: lewati jika belum masuk waktu rilis
+      if (anime.airing_time && currentJstTimeStr < anime.airing_time) {
+        console.log(`Lewati ${anime.title}: belum saatnya rilis (Jadwal JST: ${anime.airing_time}, Sekarang JST: ${currentJstTimeStr})`);
+        continue;
+      }
+
       // Periksa apakah notifikasi untuk anime ini dan user ini sudah dikirim dalam 20 jam terakhir
       const { data: existingNotif, error: notifCheckError } = await supabaseAdmin
         .from('notifications')

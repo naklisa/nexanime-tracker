@@ -8,7 +8,7 @@ import { getAnimeDetails } from '@/lib/jikan';
 import { AnimeTracker, StreamingLink, JikanAnime } from '@/types';
 import Navbar from '@/components/Navbar';
 import ConfirmModal from '@/components/ConfirmModal';
-import { Loader2, ArrowLeft, Plus, Trash2, Tv, ExternalLink, AlertCircle, CheckCircle, Save } from 'lucide-react';
+import { Loader2, ArrowLeft, Plus, Trash2, Tv, ExternalLink, AlertCircle, CheckCircle, Save, Heart } from 'lucide-react';
 
 export default function AnimeDetailPage() {
   const router = useRouter();
@@ -45,6 +45,7 @@ export default function AnimeDetailPage() {
   // Tracker editing state
   const [status, setStatus] = useState<'watching' | 'plan_to_watch' | 'completed'>('watching');
   const [lastWatchedEpisode, setLastWatchedEpisode] = useState(0);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   // New Link form state
   const [platformName, setPlatformName] = useState('');
@@ -65,6 +66,7 @@ export default function AnimeDetailPage() {
       setTracker(trackerData);
       setStatus(trackerData.status);
       setLastWatchedEpisode(trackerData.last_watched_episode);
+      setIsFavorite(trackerData.is_favorite);
 
       // 2. Fetch streaming links
       const { data: linksData, error: linksError } = await supabase
@@ -107,13 +109,19 @@ export default function AnimeDetailPage() {
         .update({
           status,
           last_watched_episode: lastWatchedEpisode,
+          is_favorite: isFavorite,
         })
         .eq('id', id);
 
       if (error) throw error;
       setSuccessMsg('Progres tontonan berhasil disimpan.');
       if (tracker) {
-        setTracker({ ...tracker, status, last_watched_episode: lastWatchedEpisode });
+        setTracker({
+          ...tracker,
+          status,
+          last_watched_episode: lastWatchedEpisode,
+          is_favorite: isFavorite
+        });
       }
     } catch (err) {
       setErrorMsg((err as Error).message || 'Gagal memperbarui progres.');
@@ -322,9 +330,8 @@ export default function AnimeDetailPage() {
             {/* Section 1: Update Progress Form */}
             <div className="glass rounded-3xl p-6 md:p-8">
               <h3 className="text-lg font-bold text-white mb-5">Perbarui Progres Tonton</h3>
-              
-              <form onSubmit={handleUpdateTracker} className="space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <form onSubmit={handleUpdateTracker} className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                   <div>
                     <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
                       Status Menonton
@@ -339,7 +346,7 @@ export default function AnimeDetailPage() {
                       <option value="completed">Selesai Menonton (Completed)</option>
                     </select>
                   </div>
-
+ 
                   <div>
                     <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
                       Episode Terakhir Ditonton
@@ -351,6 +358,24 @@ export default function AnimeDetailPage() {
                       onChange={(e) => setLastWatchedEpisode(Math.max(0, parseInt(e.target.value) || 0))}
                       className="w-full rounded-2xl border border-white/10 bg-white/5 py-3.5 px-4 text-sm text-white placeholder-slate-500 outline-none focus:border-violet-500"
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                      Favorit
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setIsFavorite(!isFavorite)}
+                      className={`flex w-full items-center justify-center gap-2 rounded-2xl border py-3 px-4 text-sm font-semibold transition-all ${
+                        isFavorite
+                          ? 'bg-red-500/10 border-red-500/20 text-red-400'
+                          : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      <Heart className={`h-4 w-4 ${isFavorite ? 'fill-red-400' : ''}`} />
+                      <span>{isFavorite ? 'Difavoritkan' : 'Jadikan Favorit'}</span>
+                    </button>
                   </div>
                 </div>
 

@@ -8,6 +8,7 @@ export interface AnimeTracker {
   last_watched_episode: number;
   airing_day: string | null;
   airing_time: string | null;
+  is_favorite: boolean;
   created_at: string;
 }
 

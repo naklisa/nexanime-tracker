@@ -8,7 +8,7 @@ import AnimeCard from '@/components/AnimeCard';
 import AddAnimeModal from '@/components/AddAnimeModal';
 import { Loader2, Plus, Compass, Search, ArrowUpDown } from 'lucide-react';
 
-type StatusFilter = 'all' | 'watching' | 'plan_to_watch' | 'completed';
+type StatusFilter = 'all' | 'watching' | 'plan_to_watch' | 'completed' | 'favorite';
 type SortOption = 'newest' | 'oldest' | 'az' | 'za';
 
 export default function DashboardPage() {
@@ -47,7 +47,13 @@ export default function DashboardPage() {
     let list = animeList;
 
     // Status filter
-    if (filter !== 'all') list = list.filter((a) => a.status === filter);
+    if (filter === 'all') {
+      list = list.filter((a) => a.status !== 'completed');
+    } else if (filter === 'favorite') {
+      list = list.filter((a) => a.is_favorite);
+    } else {
+      list = list.filter((a) => a.status === filter);
+    }
 
     // Search filter
     if (searchQuery.trim()) {
@@ -120,8 +126,14 @@ export default function DashboardPage() {
         <div className="mb-8 space-y-4 border-b border-white/5 pb-5">
           {/* Status Filters */}
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-            {(['all', 'watching', 'plan_to_watch', 'completed'] as const).map((type) => {
-              const label = { all: 'Semua', watching: 'Sedang Ditonton', plan_to_watch: 'Rencana Tonton', completed: 'Selesai' }[type];
+            {(['all', 'watching', 'plan_to_watch', 'completed', 'favorite'] as const).map((type) => {
+              const label = {
+                all: 'Semua',
+                watching: 'Sedang Ditonton',
+                plan_to_watch: 'Rencana Tonton',
+                completed: 'Selesai',
+                favorite: 'Favorit'
+              }[type];
               return (
                 <button
                   key={type}
@@ -199,8 +211,10 @@ export default function DashboardPage() {
                 ? `Tidak ada anime dengan judul "${searchQuery}" di daftar kamu.`
                 : filter === 'all'
                 ? 'Daftar pelacakan Anda kosong. Mulai tambahkan anime yang sedang Anda tonton sekarang!'
+                : filter === 'favorite'
+                ? 'Belum ada anime yang ditandai sebagai favorit.'
                 : `Tidak ada anime dengan status "${
-                    { watching: 'Sedang Ditonton', plan_to_watch: 'Rencana Tonton', completed: 'Selesai' }[filter]
+                    { watching: 'Sedang Ditonton', plan_to_watch: 'Rencana Tonton', completed: 'Selesai' }[filter as 'watching' | 'plan_to_watch' | 'completed']
                   }".`}
             </p>
             {!searchQuery.trim() && filter === 'all' && (

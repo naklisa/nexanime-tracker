@@ -26,6 +26,8 @@ export default function AddAnimeModal({ isOpen, onClose, onAnimeAdded }: AddAnim
   const [selectedAnime, setSelectedAnime] = useState<JikanAnime | null>(null);
   const [status, setStatus] = useState<'watching' | 'plan_to_watch' | 'completed'>('watching');
   const [lastWatchedEpisode, setLastWatchedEpisode] = useState(0);
+  const [airingDay, setAiringDay] = useState<string>('');
+  const [airingTime, setAiringTime] = useState<string>('');
   
   // Streaming link input states
   const [platformName, setPlatformName] = useState('');
@@ -64,6 +66,12 @@ export default function AddAnimeModal({ isOpen, onClose, onAnimeAdded }: AddAnim
   const handleSelectAnime = (anime: JikanAnime) => {
     setSelectedAnime(anime);
     setErrorMsg(null);
+
+    // Prefill schedule if available from Jikan API
+    const defaultDay = anime.broadcast?.day || '';
+    const defaultTime = anime.broadcast?.time ? anime.broadcast.time.slice(0, 5) : '';
+    setAiringDay(defaultDay);
+    setAiringTime(defaultTime);
   };
 
   const handleSave = async () => {
@@ -75,11 +83,10 @@ export default function AddAnimeModal({ isOpen, onClose, onAnimeAdded }: AddAnim
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Pengguna tidak teridentifikasi. Silakan login kembali.');
 
-      // Extract day and time from Jikan broadcast object
-      // Jikan API returns broadcast: { day, time, timezone, string }
-      const airingDay = selectedAnime.broadcast?.day || null;
-      const airingTime = selectedAnime.broadcast?.time 
-        ? `${selectedAnime.broadcast.time}:00` // Format: HH:MM:SS
+      // Extract optional day and time, fallback to state
+      const finalAiringDay = airingDay.trim() ? airingDay.trim() : null;
+      const finalAiringTime = airingTime.trim()
+        ? (airingTime.length === 5 ? `${airingTime}:00` : airingTime)
         : null;
 
       // 1. Insert into anime_tracker
@@ -92,8 +99,8 @@ export default function AddAnimeModal({ isOpen, onClose, onAnimeAdded }: AddAnim
           image_url: selectedAnime.images.jpg.large_image_url || selectedAnime.images.jpg.image_url,
           status,
           last_watched_episode: lastWatchedEpisode,
-          airing_day: airingDay,
-          airing_time: airingTime,
+          airing_day: finalAiringDay,
+          airing_time: finalAiringTime,
         })
         .select()
         .single();
@@ -129,6 +136,8 @@ export default function AddAnimeModal({ isOpen, onClose, onAnimeAdded }: AddAnim
     setSelectedAnime(null);
     setStatus('watching');
     setLastWatchedEpisode(0);
+    setAiringDay('');
+    setAiringTime('');
     setPlatformName('');
     setStreamingUrl('');
     setErrorMsg(null);
@@ -277,6 +286,52 @@ export default function AddAnimeModal({ isOpen, onClose, onAnimeAdded }: AddAnim
                     onChange={(e) => setLastWatchedEpisode(Math.max(0, parseInt(e.target.value) || 0))}
                     className="w-full rounded-2xl border border-white/10 bg-white/5 py-3 px-4 text-sm text-white placeholder-slate-500 outline-none focus:border-violet-500"
                   />
+                </div>
+              </div>
+
+              {/* Optional Schedule Setting */}
+              <div className="border-t border-white/5 pt-5 space-y-4">
+                <div>
+                  <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                    Jadwal Rilis Anime (Opsional)
+                  </h4>
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Atur hari dan jam rilis untuk notifikasi episode baru dan tampilan di halaman jadwal.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
+                      Hari Rilis
+                    </label>
+                    <select
+                      value={airingDay}
+                      onChange={(e) => setAiringDay(e.target.value)}
+                      className="w-full rounded-2xl border border-white/10 bg-[#161a25] py-3 px-4 text-sm text-white outline-none focus:border-violet-500"
+                    >
+                      <option value="">-- Tanpa Jadwal Rilis --</option>
+                      <option value="Mondays">Senin</option>
+                      <option value="Tuesdays">Selasa</option>
+                      <option value="Wednesdays">Rabu</option>
+                      <option value="Thursdays">Kamis</option>
+                      <option value="Fridays">Jumat</option>
+                      <option value="Saturdays">Sabtu</option>
+                      <option value="Sundays">Minggu</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
+                      Jam Rilis
+                    </label>
+                    <input
+                      type="time"
+                      value={airingTime}
+                      onChange={(e) => setAiringTime(e.target.value)}
+                      className="w-full rounded-2xl border border-white/10 bg-white/5 py-3 px-4 text-sm text-white outline-none focus:border-violet-500"
+                    />
+                  </div>
                 </div>
               </div>
 

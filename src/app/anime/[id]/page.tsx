@@ -46,6 +46,8 @@ export default function AnimeDetailPage() {
   const [status, setStatus] = useState<'watching' | 'plan_to_watch' | 'completed'>('watching');
   const [lastWatchedEpisode, setLastWatchedEpisode] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [airingDay, setAiringDay] = useState<string>('');
+  const [airingTime, setAiringTime] = useState<string>('');
 
   // New Link form state
   const [platformName, setPlatformName] = useState('');
@@ -67,6 +69,8 @@ export default function AnimeDetailPage() {
       setStatus(trackerData.status);
       setLastWatchedEpisode(trackerData.last_watched_episode);
       setIsFavorite(trackerData.is_favorite);
+      setAiringDay(trackerData.airing_day || '');
+      setAiringTime(trackerData.airing_time ? trackerData.airing_time.slice(0, 5) : '');
 
       // 2. Fetch streaming links
       const { data: linksData, error: linksError } = await supabase
@@ -104,23 +108,32 @@ export default function AnimeDetailPage() {
     setSuccessMsg(null);
 
     try {
+      const finalAiringDay = airingDay.trim() ? airingDay.trim() : null;
+      const finalAiringTime = airingTime.trim()
+        ? (airingTime.length === 5 ? `${airingTime}:00` : airingTime)
+        : null;
+
       const { error } = await supabase
         .from('anime_tracker')
         .update({
           status,
           last_watched_episode: lastWatchedEpisode,
           is_favorite: isFavorite,
+          airing_day: finalAiringDay,
+          airing_time: finalAiringTime,
         })
         .eq('id', id);
 
       if (error) throw error;
-      setSuccessMsg('Progres tontonan berhasil disimpan.');
+      setSuccessMsg('Progres & jadwal tontonan berhasil disimpan.');
       if (tracker) {
         setTracker({
           ...tracker,
           status,
           last_watched_episode: lastWatchedEpisode,
-          is_favorite: isFavorite
+          is_favorite: isFavorite,
+          airing_day: finalAiringDay,
+          airing_time: finalAiringTime,
         });
       }
     } catch (err) {
@@ -256,29 +269,36 @@ export default function AnimeDetailPage() {
               <h2 className="text-xl font-bold text-center mt-5 text-white">
                 {tracker.title}
               </h2>
-              {animeDetails && (
-                <div className="w-full mt-6 space-y-3.5 text-xs border-t border-white/5 pt-5 text-slate-400">
-                  <div className="flex justify-between">
-                    <span>Status Rilis</span>
-                    <span className="text-slate-200 font-semibold">{animeDetails.status}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Total Episode</span>
-                    <span className="text-slate-200 font-semibold">
-                      {animeDetails.episodes || 'Masih Berlangsung (Airing)'}
-                    </span>
-                  </div>
-                  {tracker.airing_day && (
+              <div className="w-full mt-6 space-y-3.5 text-xs border-t border-white/5 pt-5 text-slate-400">
+                {animeDetails && (
+                  <>
                     <div className="flex justify-between">
-                      <span>Jadwal Tayang</span>
-                      <span className="text-violet-400 font-semibold">
-                        {getIndonesianDay(tracker.airing_day)}
-                        {tracker.airing_time ? ` @ ${tracker.airing_time.slice(0, 5)}` : ''}
+                      <span>Status Rilis</span>
+                      <span className="text-slate-200 font-semibold">{animeDetails.status}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Total Episode</span>
+                      <span className="text-slate-200 font-semibold">
+                        {animeDetails.episodes || 'Masih Berlangsung (Airing)'}
                       </span>
                     </div>
-                  )}
-                </div>
-              )}
+                  </>
+                )}
+                {tracker.airing_day ? (
+                  <div className="flex justify-between">
+                    <span>Jadwal Tayang</span>
+                    <span className="text-violet-400 font-semibold">
+                      {getIndonesianDay(tracker.airing_day)}
+                      {tracker.airing_time ? ` @ ${tracker.airing_time.slice(0, 5)}` : ''}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex justify-between text-slate-500">
+                    <span>Jadwal Tayang</span>
+                    <span>Belum diatur</span>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Synopsis */}
@@ -376,6 +396,52 @@ export default function AnimeDetailPage() {
                       <Heart className={`h-4 w-4 ${isFavorite ? 'fill-red-400' : ''}`} />
                       <span>{isFavorite ? 'Difavoritkan' : 'Jadikan Favorit'}</span>
                     </button>
+                  </div>
+                </div>
+
+                {/* Optional Custom Schedule */}
+                <div className="border-t border-white/5 pt-4 space-y-3">
+                  <div>
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                      Jadwal Rilis Anime (Opsional)
+                    </h4>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      Atur atau ubah hari dan jam rilis untuk notifikasi otomatis dan halaman jadwal.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                        Hari Rilis
+                      </label>
+                      <select
+                        value={airingDay}
+                        onChange={(e) => setAiringDay(e.target.value)}
+                        className="w-full rounded-2xl border border-white/10 bg-[#161a25] py-3.5 px-4 text-sm text-white outline-none focus:border-violet-500"
+                      >
+                        <option value="">-- Tanpa Jadwal Rilis --</option>
+                        <option value="Mondays">Senin</option>
+                        <option value="Tuesdays">Selasa</option>
+                        <option value="Wednesdays">Rabu</option>
+                        <option value="Thursdays">Kamis</option>
+                        <option value="Fridays">Jumat</option>
+                        <option value="Saturdays">Sabtu</option>
+                        <option value="Sundays">Minggu</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                        Jam Rilis
+                      </label>
+                      <input
+                        type="time"
+                        value={airingTime}
+                        onChange={(e) => setAiringTime(e.target.value)}
+                        className="w-full rounded-2xl border border-white/10 bg-white/5 py-3.5 px-4 text-sm text-white outline-none focus:border-violet-500"
+                      />
+                    </div>
                   </div>
                 </div>
 
